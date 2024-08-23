@@ -10,7 +10,7 @@ from ..utils import (
 
 
 class YleAreenaIE(InfoExtractor):
-    _VALID_URL = r'https?://areena\.yle\.fi/(?P<id>[\d-]+)'
+    _VALID_URL = r'https?://(?P<site>areena|arenan)\.yle\.fi/(?P<id>[\d-]+)'
     _GEO_COUNTRIES = ['FI']
     _TESTS = [
         {
@@ -77,7 +77,8 @@ class YleAreenaIE(InfoExtractor):
     ]
 
     def _real_extract(self, url):
-        video_id = self._match_id(url)
+        site, video_id = self._match_valid_url(url).groups()
+        language_code = 'swe' if site == 'arenan' else 'fin'
         info = self._search_json_ld(self._download_webpage(url, video_id), video_id, default={})
         video_data = self._download_json(
             f'https://player.api.yle.fi/v1/preview/{video_id}.json?app_id=player_static_prod&app_key=8930d72170e48303cf5f3867780d549b',
@@ -89,10 +90,11 @@ class YleAreenaIE(InfoExtractor):
 
         # Example title: 'K1, J2: Pouchit | Modernit miehet'
         season_number, episode_number, episode, series = self._search_regex(
-            r'K(?P<season_no>\d+),\s*J(?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*|\s*(?P<series>.+)',
+            r'[KS](?P<season_no>\d+),\s*[JA](?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*|\s*(?P<series>.+)',
             info.get('title') or '', 'episode metadata', group=('season_no', 'episode_no', 'episode', 'series'),
             default=(None, None, None, None))
-        description = traverse_obj(video_data, ('data', 'ongoing_ondemand', 'description', 'fin'), expected_type=str)
+        description = (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'description', language_code), expected_type=str)
+                       or info.get('description'))
 
         subtitles = {}
         for sub in traverse_obj(video_data, ('data', 'ongoing_ondemand', 'subtitles', ...)):
@@ -121,12 +123,12 @@ class YleAreenaIE(InfoExtractor):
 
         return {
             **info_dict,
-            'title': (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'title', 'fin'), expected_type=str)
+            'title': (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'title', language_code), expected_type=str)
                       or episode or info.get('title')),
             'description': description,
-            'series': (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'series', 'title', 'fin'), expected_type=str)
+            'series': (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'series', 'title', language_code), expected_type=str)
                        or series),
-            'season_number': (int_or_none(self._search_regex(r'Kausi (\d+)', description, 'season number', default=None))
+            'season_number': (int_or_none(self._search_regex(r'(?:Kausi|Säsong) (\d+)', description, 'season number', default=None))
                               or int_or_none(season_number)),
             'episode_number': (traverse_obj(video_data, ('data', 'ongoing_ondemand', 'episode_number'), expected_type=int_or_none)
                                or int_or_none(episode_number)),
