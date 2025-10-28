@@ -72,6 +72,20 @@ class YleAreenaIE(InfoExtractor):
             },
         },
         {
+            'url': 'https://areena.yle.fi/1-3094091',
+            'info_dict': {
+                'id': '1-3094091',
+                'ext': 'mp4',
+                'title': 'Människan och teknologin - Vetamix: Linus Torvalds',
+                'description': 'md5:595d3a52d01df943079f664d6f89cf00',
+                'series': 'Människan och teknologin - Vetamix',
+                'thumbnail': r're:https://images\.cdn\.yle\.fi/image/upload/.+\.jpg',
+                'release_date': '20151019',
+                'release_timestamp': 1445243340,
+                'duration': 216,
+            },
+        },
+        {
             'url': 'https://areena.yle.fi/1-76362374',
             'info_dict': {
                 'id': '1-76362374',
@@ -115,13 +129,14 @@ class YleAreenaIE(InfoExtractor):
                 'referer': 'https://areena.yle.fi/',
                 'content-type': 'application/json',
             })['data']
+        langs = ('fin', 'swe', 'smi')
 
         # Example title: 'K1, J2: Pouchit | Modernit miehet'
         season_number, episode_number, episode, series = self._search_regex(
             r'K(?P<season_no>\d+),\s*J(?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*|\s*(?P<series>.+)',
             json_ld.get('title') or '', 'episode metadata', group=('season_no', 'episode_no', 'episode', 'series'),
             default=(None, None, None, None))
-        description = traverse_obj(video_data, ('ongoing_ondemand', 'description', 'fin', {str}))
+        description = traverse_obj(video_data, ('ongoing_ondemand', 'description', langs, any, {str}))
 
         subtitles = {}
         for sub in traverse_obj(video_data, ('ongoing_ondemand', 'subtitles', lambda _, v: url_or_none(v['uri']))):
@@ -169,14 +184,14 @@ class YleAreenaIE(InfoExtractor):
             'title': episode,
             'description': description,
             'series': series,
-            'season_number': (int_or_none(self._search_regex(r'Kausi (\d+)', description, 'season number', default=None))
+            'season_number': (int_or_none(self._search_regex(r'(?:Kausi|Säsong) (\d+)', description, 'season number', default=None))
                               or int_or_none(season_number)),
             'episode_number': int_or_none(episode_number),
             'subtitles': subtitles or None,
             **traverse_obj(metadata, {
-                'title': ('title', 'fin', {str}),
-                'description': ('description', 'fin', {str}),
-                'series': ('series', 'title', 'fin', {str}),
+                'title': ('title', langs, any, {str}),
+                'description': ('description', langs, any, {str}),
+                'series': ('series', 'title', langs, any, {str}),
                 'episode_number': ('episode_number', {int_or_none}),
                 'age_limit': ('content_rating', 'age_restriction', {int_or_none}),
                 'release_timestamp': ('start_time', {parse_iso8601}),
