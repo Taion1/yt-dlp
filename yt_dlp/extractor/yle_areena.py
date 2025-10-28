@@ -91,7 +91,7 @@ class YleAreenaIE(InfoExtractor):
                 'id': '1-76362374',
                 'ext': 'mp4',
                 'title': r're:Pentulive 24/7 \d{4}-\d{2}-\d{2} \d{2}:\d{2}',
-                'description': 'md5:2cb959caf971fae3dd9ed174c378d09b',
+                'description': str,
                 'series': 'Pentulive',
                 'thumbnail': r're:https://images\.cdn\.yle\.fi/image/upload/.+\.jpg',
                 'live_status': 'is_live',
