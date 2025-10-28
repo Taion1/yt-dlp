@@ -11,7 +11,7 @@ from ..utils.traversal import traverse_obj
 
 
 class YleAreenaIE(InfoExtractor):
-    _VALID_URL = r'https?://areena\.yle\.fi/(?P<podcast>podcastit/)?(?P<id>[\d-]+)'
+    _VALID_URL = r'https?://(?P<site>areena|arenan)\.yle\.fi/(?P<podcast>(?:podcastit|poddar)/)?(?P<id>[\d-]+)'
     _GEO_COUNTRIES = ['FI']
     _TESTS = [
         {
@@ -120,7 +120,7 @@ class YleAreenaIE(InfoExtractor):
     ]
 
     def _real_extract(self, url):
-        video_id, is_podcast = self._match_valid_url(url).group('id', 'podcast')
+        video_id, is_podcast, site = self._match_valid_url(url).group('id', 'podcast', 'site')
         json_ld = self._search_json_ld(self._download_webpage(url, video_id), video_id, default={})
         video_data = self._download_json(
             f'https://player.api.yle.fi/v1/preview/{video_id}.json?app_id=player_static_prod&app_key=8930d72170e48303cf5f3867780d549b',
@@ -129,11 +129,11 @@ class YleAreenaIE(InfoExtractor):
                 'referer': 'https://areena.yle.fi/',
                 'content-type': 'application/json',
             })['data']
-        langs = ('fin', 'swe', 'smi')
+        langs = ('swe', 'fin', 'smi') if site == 'arenan' else ('fin', 'swe', 'smi')
 
         # Example title: 'K1, J2: Pouchit | Modernit miehet'
         season_number, episode_number, episode, series = self._search_regex(
-            r'K(?P<season_no>\d+),\s*J(?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*|\s*(?P<series>.+)',
+            r'[KS](?P<season_no>\d+),\s*[JA](?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*|\s*(?P<series>.+)',
             json_ld.get('title') or '', 'episode metadata', group=('season_no', 'episode_no', 'episode', 'series'),
             default=(None, None, None, None))
         description = traverse_obj(video_data, ('ongoing_ondemand', 'description', langs, any, {str}))
