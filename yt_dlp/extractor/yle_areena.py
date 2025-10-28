@@ -16,7 +16,7 @@ class YleAreenaIE(InfoExtractor):
     _TESTS = [
         {
             'url': 'https://areena.yle.fi/1-4371942',
-            'md5': 'd87e9a1e74e67e009990ddd413e426b4',
+            'md5': 'dde2f2233bc1874b47b37d7b8ce7d90d',
             'info_dict': {
                 'id': '1-4371942',
                 'ext': 'mp4',
@@ -36,13 +36,17 @@ class YleAreenaIE(InfoExtractor):
         },
         {
             'url': 'https://areena.yle.fi/1-2158940',
-            'md5': '6369ddc5e07b5fdaeda27a495184143c',
+            'md5': '7e9a63e1e2c87ec0c0f7dfc202859001',
             'info_dict': {
                 'id': '1-2158940',
                 'ext': 'mp4',
                 'title': 'Albi haluaa vessan',
                 'description': 'Albi haluaa vessan.',
                 'series': 'Albi Lumiukko',
+                'season': 'Season 1',
+                'season_number': 1,
+                'episode': 'Episode 8',
+                'episode_number': 8,
                 'thumbnail': r're:https://images\.cdn\.yle\.fi/image/upload/.+\.jpg',
                 'age_limit': 0,
                 'release_date': '20211215',
@@ -68,17 +72,17 @@ class YleAreenaIE(InfoExtractor):
             },
         },
         {
-            'url': 'https://areena.yle.fi/1-72251830',
+            'url': 'https://areena.yle.fi/1-76362374',
             'info_dict': {
-                'id': '1-72251830',
+                'id': '1-76362374',
                 'ext': 'mp4',
-                'title': r're:Pentulive 2024 | Pentulive \d{4}-\d{2}-\d{2} \d{2}:\d{2}',
-                'description': 'md5:1f118707d9093bf894a34fbbc865397b',
+                'title': r're:Pentulive 24/7 \d{4}-\d{2}-\d{2} \d{2}:\d{2}',
+                'description': 'md5:2cb959caf971fae3dd9ed174c378d09b',
                 'series': 'Pentulive',
                 'thumbnail': r're:https://images\.cdn\.yle\.fi/image/upload/.+\.jpg',
                 'live_status': 'is_live',
-                'release_date': '20241025',
-                'release_timestamp': 1729875600,
+                'release_date': '20251014',
+                'release_timestamp': 1760445600,
             },
             'params': {
                 'skip_download': 'livestream',
