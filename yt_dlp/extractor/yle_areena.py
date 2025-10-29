@@ -133,7 +133,7 @@ class YleAreenaIE(InfoExtractor):
 
         # Example title: 'K1, J2: Pouchit | Modernit miehet'
         season_number, episode_number, episode, series = self._search_regex(
-            r'[KS](?P<season_no>\d+),\s*[JA](?P<episode_no>\d+):?\s*\b(?P<episode>[^|]+)\s*\|\s*(?P<series>.+)',
+            r'[KS](?P<season_no>\d+),\s*[JA](?P<episode_no>\d+):?\s*\b(?P<episode>[^|]*\S)\s*\|\s*(?P<series>.+)',
             json_ld.get('title') or '', 'episode metadata', group=('season_no', 'episode_no', 'episode', 'series'),
             default=(None, None, None, None))
         description = traverse_obj(video_data, ('ongoing_ondemand', 'description', langs, any, {str}))
